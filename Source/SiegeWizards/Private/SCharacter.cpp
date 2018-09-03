@@ -52,6 +52,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASCharacter::BeginCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::WizardJump);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -62,6 +64,11 @@ void ASCharacter::MoveForward(float Value)
 void ASCharacter::MoveRight(float Value)
 {
 	AddMovementInput(GetActorRightVector() * Value);
+}
+
+void ASCharacter::WizardJump()
+{
+	Jump();
 }
 
 void ASCharacter::BeginCrouch() 
