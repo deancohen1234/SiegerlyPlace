@@ -7,6 +7,7 @@
 #include "SWeapon.generated.h"
 
 class USkelatalMeshComponent;
+class UDamageType;
 
 UCLASS()
 class SIEGEWIZARDS_API ASWeapon : public AActor
@@ -23,6 +24,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent * MeshComponent;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void Fire();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
 
 public:	
 	// Called every frame
