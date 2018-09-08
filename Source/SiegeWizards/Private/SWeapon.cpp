@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SWeapon.h"
+//#include "SWeapon.h"
+#include "../Public/SWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -14,6 +16,9 @@ ASWeapon::ASWeapon()
 
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh Component"));
 	RootComponent = MeshComponent;
+
+	MuzzleSocketName = "MuzzleSocket";
+	TracerTargetName = "BeamEnd";
 }
 
 // Called when the game starts or when spawned
@@ -50,6 +55,9 @@ void ASWeapon::Fire()
 	QueryParams.AddIgnoredActor(this);
 	QueryParams.bTraceComplex = true;
 
+	//Particle "Target" parameter
+	FVector TracerEndPoint = TraceEnd;
+
 	FHitResult Hit;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECC_Visibility, QueryParams)) 
 	{
@@ -59,8 +67,32 @@ void ASWeapon::Fire()
 		
 		UGameplayStatics::ApplyPointDamage(ActorHit, 15.0f, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);
 
+		if (MuzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+		}
+
+		TracerEndPoint = Hit.ImpactPoint;
 	}
 
-	DrawDebugLine(GetWorld(), EyesLocation, TraceEnd, FColor::Emerald, false, 1.0f, 0, 1.0f);
+	//DrawDebugLine(GetWorld(), EyesLocation, TraceEnd, FColor::Emerald, false, 1.0f, 0, 1.0f);
+
+	if (MuzzleEffect) 
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, MeshComponent, MuzzleSocketName);
+	}
+
+
+	if (TracerEffect) 
+	{
+		FVector MuzzleLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
+		UParticleSystemComponent* SpawnedTracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+
+		if (SpawnedTracerComp) 
+		{
+			SpawnedTracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
+		}
+	}
+
 }
 
