@@ -29,11 +29,21 @@ void ASProjectileLauncher::Tick(float DeltaTime)
 
 void ASProjectileLauncher::Fire() 
 {
+	AActor* Owner = GetOwner();
+
+	if (!Owner || !ProjectileBlueprint) return;
+
+	FVector EyesLocation;
+	FRotator EyesRotation;
+
+	Owner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
 	FVector SpawnLocation = MeshComponent->GetSocketLocation(MuzzleSocketName);
 	FRotator SpawnRotation = MeshComponent->GetSocketRotation(MuzzleSocketName);
 
 	FActorSpawnParameters Parameters;
-	AAProjectile* Projectile = GetWorld()->SpawnActor<AAProjectile>(ProjectileBlueprint, SpawnLocation, SpawnRotation, Parameters);
+	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AAProjectile* Projectile = GetWorld()->SpawnActor<AAProjectile>(ProjectileBlueprint, SpawnLocation, EyesRotation, Parameters);
 
 	Projectile->Launch(1000);
 }
