@@ -45,6 +45,6 @@ void ASProjectileLauncher::Fire()
 	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	AAProjectile* Projectile = GetWorld()->SpawnActor<AAProjectile>(ProjectileBlueprint, SpawnLocation, EyesRotation, Parameters);
 
-	Projectile->Launch(1000);
+	Projectile->Launch(EyesRotation.Vector());
 }
 

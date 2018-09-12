@@ -7,6 +7,7 @@
 #include "AProjectile.generated.h"
 
 class UStaticMeshComponent;
+class USphereComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
@@ -26,11 +27,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent * MeshComponent = nullptr;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
+	USphereComponent* CollisionComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Launch(float Speed);
+	void Launch(FVector AimDirection);
 };
