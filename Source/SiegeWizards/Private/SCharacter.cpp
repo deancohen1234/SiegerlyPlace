@@ -30,11 +30,21 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	DefaultFOV = CameraComponent->FieldOfView;
+
 }
 
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
+
+	//float CurrentFOV = bWantsToZoom ? ZoomedInFOV : DefaultFOV;
+	float GoalFOV = bWantsToZoom ? ZoomedInFOV : DefaultFOV;
+
+	float DesiredFOV = FMath::Lerp(CameraComponent->FieldOfView, GoalFOV, DeltaTime * ZoomSpeed);
+
+	CameraComponent->SetFieldOfView(DesiredFOV);
+
 	Super::Tick(DeltaTime);
 
 }
@@ -54,6 +64,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::WizardJump);
+
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -89,5 +102,22 @@ void ASCharacter::BeginCrouch()
 void ASCharacter::EndCrouch()
 {
 	UnCrouch();
+}
+
+void ASCharacter::BeginZoom() 
+{
+	bWantsToZoom = true;
+}
+
+void ASCharacter::EndZoom()
+{
+	bWantsToZoom = false;
+}
+
+void ASCharacter::SwapWeapon() 
+{
+	bIsUsingPrimary = !bIsUsingPrimary;
+
+	UE_LOG(LogTemp, Warning, TEXT("Text is here"));
 }
 

@@ -22,6 +22,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void SwapWeapon();
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
@@ -30,11 +33,27 @@ protected:
 
 	void WizardJump();
 
+	void BeginZoom();
+	void EndZoom();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
+	bool bIsUsingPrimary = true;
+
+	bool bWantsToZoom = false;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
+	float ZoomedInFOV = 30.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming", meta = (ClampMin = 0.0, ClampMax = 100.0))
+	float ZoomSpeed = 10.0f;
+
+	float DefaultFOV;
 
 public:	
 	// Called every frame
