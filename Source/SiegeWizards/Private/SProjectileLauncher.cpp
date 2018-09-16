@@ -46,5 +46,18 @@ void ASProjectileLauncher::Fire()
 	AAProjectile* Projectile = GetWorld()->SpawnActor<AAProjectile>(ProjectileBlueprint, SpawnLocation, EyesRotation, Parameters);
 
 	Projectile->Launch(EyesRotation.Vector());
+
+	//eventually factor this out
+	//myowner is the player pawn
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+
+	if (MyOwner)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(MyOwner->GetController());
+		if (PlayerController)
+		{
+			PlayerController->ClientPlayCameraShake(FireCameraShake);
+		}
+	}
 }
 

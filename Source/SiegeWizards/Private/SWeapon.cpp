@@ -20,6 +20,7 @@ ASWeapon::ASWeapon()
 	TracerTargetName = "BeamEnd";
 }
 
+//TODO make this class not hitscan, rather a blueprint to override for launcher and other kinds of weapons
 void ASWeapon::Fire() 
 {
 	AActor* Owner = GetOwner();
@@ -83,6 +84,18 @@ void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
 		if (SpawnedTracerComp)
 		{
 			SpawnedTracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
+		}
+	}
+
+	//myowner is the player pawn
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+
+	if (MyOwner) 
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(MyOwner->GetController());
+		if (PlayerController) 
+		{
+			PlayerController->ClientPlayCameraShake(FireCameraShake);
 		}
 	}
 }
