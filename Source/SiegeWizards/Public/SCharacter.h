@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ASWeapon;
 
 UCLASS()
 class SIEGEWIZARDS_API ASCharacter : public ACharacter
@@ -19,11 +20,16 @@ public:
 	ASCharacter();
 
 protected:
+
+	//////////////*Functions*////////////////
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	void SwapWeapon();
+
+	void SetCurrentWeapon(TSubclassOf<ASWeapon> NewWeapon);
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -35,6 +41,19 @@ protected:
 
 	void BeginZoom();
 	void EndZoom();
+
+	void Fire();
+
+
+	////////////*Variables*//////////////
+
+	ASWeapon* CurrentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	TSubclassOf<ASWeapon> PrimaryWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	TSubclassOf<ASWeapon> SecondaryWeapon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;
@@ -54,6 +73,9 @@ protected:
 	float ZoomSpeed = 10.0f;
 
 	float DefaultFOV;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapons")
+	FName WeaponAttachSocketName;
 
 public:	
 	// Called every frame

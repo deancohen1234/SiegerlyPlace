@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "SWeapon.h"
 
 
 // Sets default values
@@ -22,7 +23,7 @@ ASCharacter::ASCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
-	
+	WeaponAttachSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +33,7 @@ void ASCharacter::BeginPlay()
 	
 	DefaultFOV = CameraComponent->FieldOfView;
 
+	SetCurrentWeapon(PrimaryWeapon);
 }
 
 // Called every frame
@@ -67,6 +69,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
 	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::Fire);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -118,6 +122,39 @@ void ASCharacter::SwapWeapon()
 {
 	bIsUsingPrimary = !bIsUsingPrimary;
 
-	UE_LOG(LogTemp, Warning, TEXT("Text is here"));
+	if (bIsUsingPrimary) 
+	{
+		SetCurrentWeapon(PrimaryWeapon);
+	}
+	else 
+	{
+		SetCurrentWeapon(SecondaryWeapon);
+	}
+}
+
+void ASCharacter::SetCurrentWeapon(TSubclassOf<ASWeapon> NewWeapon) 
+{
+	if (CurrentWeapon) 
+	{
+		CurrentWeapon->Destroy();
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(NewWeapon, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetOwner(this);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+	}
+}
+
+void ASCharacter::Fire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
 }
 
