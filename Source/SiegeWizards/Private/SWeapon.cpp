@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "SiegeWizards.h"
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing(TEXT("COOP.DebugWeapons"), DebugWeaponDrawing, TEXT("Draw Debug Lines for Weapons"), ECVF_Cheat);
@@ -40,22 +42,46 @@ void ASWeapon::Fire()
 	QueryParams.AddIgnoredActor(Owner);
 	QueryParams.AddIgnoredActor(this);
 	QueryParams.bTraceComplex = true;
+	QueryParams.bReturnPhysicalMaterial = true;
 
 	//Particle "Target" parameter
 	FVector TracerEndPoint = TraceEnd;
 
 	FHitResult Hit;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, ECC_Visibility, QueryParams)) 
+	if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit Something!!"));
 		
 		AActor* ActorHit = Hit.GetActor();
-		
-		UGameplayStatics::ApplyPointDamage(ActorHit, 15.0f, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);
 
-		if (MuzzleEffect)
+		EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+		//if we hit vulnerable location (head)
+
+		float ActualDamage = BaseDamage;
+		if (SurfaceType == SURFACE_FLESHVULNERABLE) 
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+			ActualDamage *= HeadshotMultiplier;
+		}
+		
+		UGameplayStatics::ApplyPointDamage(ActorHit, ActualDamage, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);
+
+
+		UParticleSystem* SelectedEffect = nullptr;
+		switch (SurfaceType) 
+		{
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVULNERABLE:
+				SelectedEffect = FleshImpactEffect;
+				break;
+			default:
+				SelectedEffect = DefaultImpactEffect;
+				break;
+		}
+
+		if (SelectedEffect)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect , Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 		}
 
 		TracerEndPoint = Hit.ImpactPoint;
