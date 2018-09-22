@@ -44,9 +44,13 @@ protected:
 
 	void StartFire();
 	void StopFire();
-
+	void ReloadWeapon();
 
 	////////////*Variables*//////////////
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	float MaxMana = 100;
+
+	float CurrentMana; 
 
 	ASWeapon* CurrentWeapon;
 
@@ -86,5 +90,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override;
-	
+
+	void UseMana(float ManaUsed);
+
+
+	UFUNCTION(BlueprintCallable)
+	FString GetFormattedAmmoString() const;
 };

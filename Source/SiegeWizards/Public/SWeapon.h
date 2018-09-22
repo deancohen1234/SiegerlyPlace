@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire = 600.0f; //bullets per minute
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float ManaUsedPerShot = 3.0f;
+
 	/****************Particle Effects*******************/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")

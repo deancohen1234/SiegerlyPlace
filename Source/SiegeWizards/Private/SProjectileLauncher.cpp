@@ -2,6 +2,7 @@
 
 #include "../Public/SProjectileLauncher.h"
 #include "Kismet/GameplayStatics.h"
+#include "SCharacter.h"
 #include "../Public/AProjectile.h"
 
 
@@ -58,6 +59,13 @@ void ASProjectileLauncher::Fire()
 		{
 			PlayerController->ClientPlayCameraShake(FireCameraShake);
 		}
+	}
+
+	ASCharacter* Player = Cast<ASCharacter>(Owner);
+
+	if (Player)
+	{
+		Player->UseMana(ManaUsedPerShot);
 	}
 }
 

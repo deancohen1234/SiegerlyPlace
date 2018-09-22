@@ -3,6 +3,7 @@
 //#include "SWeapon.h"
 #include "../Public/SWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "SCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -50,9 +51,7 @@ void ASWeapon::Fire()
 
 	FHitResult Hit;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, EyesLocation, TraceEnd, COLLISION_WEAPON, QueryParams)) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Something!!"));
-		
+	{		
 		AActor* ActorHit = Hit.GetActor();
 
 		EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
@@ -96,7 +95,15 @@ void ASWeapon::Fire()
 	PlayFireEffects(TracerEndPoint);
 
 	LastTimeFired = GetWorld()->TimeSeconds;
+	
+	ASCharacter* Player = Cast<ASCharacter>(Owner);
+
+	if (Player) 
+	{
+		Player->UseMana(ManaUsedPerShot);
+	}
 }
+
 
 void ASWeapon::PlayFireEffects(FVector TracerEndPoint) 
 {

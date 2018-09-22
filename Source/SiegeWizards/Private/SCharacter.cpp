@@ -38,6 +38,8 @@ void ASCharacter::BeginPlay()
 	DefaultFOV = CameraComponent->FieldOfView;
 
 	SetCurrentWeapon(PrimaryWeapon);
+
+	CurrentMana = MaxMana;
 }
 
 // Called every frame
@@ -76,6 +78,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::ReloadWeapon);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -157,6 +161,8 @@ void ASCharacter::SetCurrentWeapon(TSubclassOf<ASWeapon> NewWeapon)
 
 void ASCharacter::StartFire()
 {
+	if (CurrentMana <= 0) return;
+
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StartFire();
@@ -169,5 +175,24 @@ void ASCharacter::StopFire()
 	{
 		CurrentWeapon->StopFire();
 	}
+}
+
+void ASCharacter::ReloadWeapon() 
+{
+	CurrentMana = MaxMana;
+}
+
+void ASCharacter::UseMana(float ManaAmount) 
+{
+	CurrentMana = FMath::Clamp(CurrentMana - ManaAmount, 0.0f, MaxMana);
+}
+
+FString ASCharacter::GetFormattedAmmoString() const
+{
+	FString Text = FString::SanitizeFloat(CurrentMana);
+	Text += "/";
+	Text += FString::SanitizeFloat(MaxMana);
+
+	return Text;
 }
 
