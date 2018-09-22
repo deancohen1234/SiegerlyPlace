@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "TimerManager.h"
 #include "SiegeWizards.h"
 
 static int32 DebugWeaponDrawing = 0;
@@ -93,6 +94,8 @@ void ASWeapon::Fire()
 	}
 
 	PlayFireEffects(TracerEndPoint);
+
+	LastTimeFired = GetWorld()->TimeSeconds;
 }
 
 void ASWeapon::PlayFireEffects(FVector TracerEndPoint) 
@@ -124,5 +127,22 @@ void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
 			PlayerController->ClientPlayCameraShake(FireCameraShake);
 		}
 	}
+}
+
+void ASWeapon::StartFire()
+{
+	float TimeBetweenShots = 60.0f / RateOfFire; //RPM converted into Rounds per Second
+
+	//check to make sure you can't just spam faster than the weapon can shoot
+	if (GetWorld()->TimeSeconds - LastTimeFired >= TimeBetweenShots) 
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, 0.0f);
+
+	}
+}
+
+void ASWeapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
 }
 

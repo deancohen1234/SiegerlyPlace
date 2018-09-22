@@ -44,6 +44,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float HeadshotMultiplier = 5.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float RateOfFire = 600.0f; //bullets per minute
+
 	/****************Particle Effects*******************/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
@@ -58,9 +61,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
 
+	FTimerHandle TimerHandle_TimeBetweenShots;
+	float LastTimeFired;
 
 public:	
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire();
+
+	void StartFire();
+	void StopFire();
 };

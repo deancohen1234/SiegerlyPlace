@@ -42,7 +42,8 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
-	void Fire();
+	void StartFire();
+	void StopFire();
 
 
 	////////////*Variables*//////////////
