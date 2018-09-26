@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "SHealthComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "SWeapon.h"
 #include "SiegeWizards.h"
@@ -19,6 +20,8 @@ ASCharacter::ASCharacter()
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Component"));
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SetupAttachment(RootComponent);
+
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
 
 	GetMovementComponent()->GetNavAgentProperties()->bCanCrouch = true;
 
@@ -40,6 +43,10 @@ void ASCharacter::BeginPlay()
 	SetCurrentWeapon(PrimaryWeapon);
 
 	CurrentMana = MaxMana;
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+
+	bDied = false;
 }
 
 // Called every frame
@@ -184,6 +191,26 @@ void ASCharacter::StopFire()
 void ASCharacter::ReloadWeapon() 
 {
 	CurrentMana = MaxMana;
+}
+
+void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (HealthComp) 
+	{
+		if (Health <= 0 && !bDied) 
+		{
+			//Die
+
+			bDied = true;
+
+			GetMovementComponent()->StopMovementImmediately();
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+			DetachFromControllerPendingDestroy();
+
+			SetLifeSpan(5.0f);
+		}
+	}
 }
 
 void ASCharacter::UseMana(float ManaAmount) 

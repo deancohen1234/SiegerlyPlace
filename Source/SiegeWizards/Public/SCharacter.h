@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USHealthComponent;
 class ASWeapon;
 
 UCLASS()
@@ -46,6 +47,9 @@ protected:
 	void StopFire();
 	void ReloadWeapon();
 
+	UFUNCTION()
+	void OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 	////////////*Variables*//////////////
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	float MaxMana = 100;
@@ -66,6 +70,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* HealthComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	bool bIsUsingPrimary = true;
 
@@ -81,6 +88,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapons")
 	FName WeaponAttachSocketName;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
 	// Called every frame
