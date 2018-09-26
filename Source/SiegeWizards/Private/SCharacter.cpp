@@ -161,10 +161,14 @@ void ASCharacter::SetCurrentWeapon(TSubclassOf<ASWeapon> NewWeapon)
 
 void ASCharacter::StartFire()
 {
-	if (CurrentMana <= 0) return;
-
 	if (CurrentWeapon)
 	{
+		if (CurrentMana <= 0) 
+		{
+			CurrentWeapon->StopFire();
+			return;
+		}
+
 		CurrentWeapon->StartFire();
 	}
 }
@@ -185,6 +189,11 @@ void ASCharacter::ReloadWeapon()
 void ASCharacter::UseMana(float ManaAmount) 
 {
 	CurrentMana = FMath::Clamp(CurrentMana - ManaAmount, 0.0f, MaxMana);
+}
+
+float ASCharacter::GetMana() 
+{
+	return CurrentMana;
 }
 
 FString ASCharacter::GetFormattedAmmoString() const

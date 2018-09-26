@@ -32,6 +32,19 @@ void ASProjectileLauncher::Fire()
 {
 	AActor* Owner = GetOwner();
 
+	ASCharacter* Player = Cast<ASCharacter>(Owner);
+
+	if (Player)
+	{
+		//if player is out of mana
+		if (Player->GetMana() <= 0)
+		{
+			return;
+		}
+
+		Player->UseMana(ManaUsedPerShot);
+	}
+
 	if (!Owner || !ProjectileBlueprint) return;
 
 	FVector EyesLocation;
@@ -61,11 +74,6 @@ void ASProjectileLauncher::Fire()
 		}
 	}
 
-	ASCharacter* Player = Cast<ASCharacter>(Owner);
-
-	if (Player)
-	{
-		Player->UseMana(ManaUsedPerShot);
-	}
+	
 }
 

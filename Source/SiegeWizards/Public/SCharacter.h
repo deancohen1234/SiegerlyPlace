@@ -93,6 +93,7 @@ public:
 
 	void UseMana(float ManaUsed);
 
+	float GetMana();
 
 	UFUNCTION(BlueprintCallable)
 	FString GetFormattedAmmoString() const;

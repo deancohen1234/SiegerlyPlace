@@ -31,6 +31,19 @@ void ASWeapon::Fire()
 
 	if (!Owner) return;
 
+	ASCharacter* Player = Cast<ASCharacter>(Owner);
+
+	if (Player)
+	{
+		//if player is out of mana
+		if (Player->GetMana() <= 0) 
+		{
+			return;
+		}
+
+		Player->UseMana(ManaUsedPerShot);
+	}
+
 	FVector EyesLocation;
 	FRotator EyesRotation;
 
@@ -95,13 +108,6 @@ void ASWeapon::Fire()
 	PlayFireEffects(TracerEndPoint);
 
 	LastTimeFired = GetWorld()->TimeSeconds;
-	
-	ASCharacter* Player = Cast<ASCharacter>(Owner);
-
-	if (Player) 
-	{
-		Player->UseMana(ManaUsedPerShot);
-	}
 }
 
 
