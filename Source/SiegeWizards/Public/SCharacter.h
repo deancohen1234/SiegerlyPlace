@@ -56,6 +56,7 @@ protected:
 
 	float CurrentMana; 
 
+	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
@@ -104,6 +105,8 @@ public:
 	void UseMana(float ManaUsed);
 
 	float GetMana();
+
+
 
 	UFUNCTION(BlueprintCallable)
 	FString GetFormattedAmmoString() const;

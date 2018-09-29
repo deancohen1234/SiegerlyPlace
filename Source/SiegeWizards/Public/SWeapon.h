@@ -10,6 +10,21 @@ class USkelatalMeshComponent;
 class UDamageType;
 class UParticleSystem;
 
+//contains information of a single hitscan linetrace
+USTRUCT()
+struct FHitScanTrace
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> SurfaceType;
+
+	UPROPERTY()
+	FVector_NetQuantize TraceTo;
+};
+
 UCLASS()
 class SIEGEWIZARDS_API ASWeapon : public AActor
 {
@@ -23,8 +38,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent * MeshComponent;
-
-	void PlayFireEffects(FVector TracerEnd);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -67,10 +80,23 @@ protected:
 	FTimerHandle TimerHandle_TimeBetweenShots;
 	float LastTimeFired;
 
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace;
+
+	void PlayFireEffects(FVector TracerEnd);
+
+	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+
+	UFUNCTION()
+	void OnRep_HitScanTrace();
+
 public:	
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
 
 	void StartFire();
 	void StopFire();

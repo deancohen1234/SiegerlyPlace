@@ -8,6 +8,7 @@
 #include "SHealthComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "SWeapon.h"
+#include "Net/UnrealNetwork.h"
 #include "SiegeWizards.h"
 
 
@@ -39,12 +40,16 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	DefaultFOV = CameraComponent->FieldOfView;
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
-	SetCurrentWeapon(PrimaryWeapon);
+	//only sets up weapon when server
+	if (Role == ROLE_Authority) 
+	{
+		SetCurrentWeapon(PrimaryWeapon);
+	}
 
 	CurrentMana = MaxMana;
 
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
 	bDied = false;
 }
@@ -230,5 +235,12 @@ FString ASCharacter::GetFormattedAmmoString() const
 	Text += FString::SanitizeFloat(MaxMana);
 
 	return Text;
+}
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);
 }
 
