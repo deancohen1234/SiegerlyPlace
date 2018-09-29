@@ -90,7 +90,7 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapons")
 	FName WeaponAttachSocketName;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 
 public:	

@@ -25,6 +25,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
 	float DefaultHealth;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
 	float CurrentHealth;
 
 	UFUNCTION()

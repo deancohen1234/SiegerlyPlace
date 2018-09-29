@@ -242,5 +242,7 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+	//bDied needed to be replicated for the death animation
+	DOREPLIFETIME(ASCharacter, bDied);
 }
 
