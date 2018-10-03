@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "STracker.h"
+#include "Classes/Kismet/GameplayStatics.h"
+#include "AI/Navigation/NavigationSystem.h"
+#include "AI/Navigation/NavigationPath.h"
+#include "GameFramework/Character.h"
 
 
 // Sets default values
@@ -25,5 +29,21 @@ void ASTracker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+FVector ASTracker::GetNextPathPoint()
+{
+	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
+
+	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), Cast<AActor>(PlayerPawn));
+
+	if (NavPath->PathPoints.Num() > 1) 
+	{
+		//return next point in path
+		return NavPath->PathPoints[1];
+	}
+
+	//failed to find path
+	return GetActorLocation();
 }
 
