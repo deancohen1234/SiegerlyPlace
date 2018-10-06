@@ -24,7 +24,18 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float RequiredDistanceToTarget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float MovementForce;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	bool bUseVelocityChange;
+
 	FVector GetNextPathPoint();
+
+	FVector NextPathPoint;
 
 public:	
 	// Called every frame
