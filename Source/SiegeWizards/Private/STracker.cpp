@@ -6,6 +6,7 @@
 #include "AI/Navigation/NavigationPath.h"
 #include "GameFramework/Character.h"
 #include "DrawDebugHelpers.h"
+#include "SHealthComponent.h"
 
 
 // Sets default values
@@ -17,6 +18,9 @@ ASTracker::ASTracker()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	RootComponent = MeshComponent;
 	MeshComponent->SetSimulatePhysics(true); 
+
+	HealthComponent = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTracker::HandleTakeDamage);
 
 	bUseVelocityChange = false;
 	MovementForce = 1000.0f;
@@ -74,5 +78,27 @@ FVector ASTracker::GetNextPathPoint()
 
 	//failed to find path
 	return GetActorLocation();
+}
+
+void ASTracker::HandleTakeDamage(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	//explode on hit point 0
+
+	//TODO pulse the material on hit
+
+	if (MatInst == nullptr) 
+	{
+		MatInst = MeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComponent->GetMaterial(0));
+	}
+
+	if (MatInst) 
+	{
+		MatInst->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+	}
+
+
+	FString Name = HealthComp->GetOwner()->GetName();
+
+	UE_LOG(LogTemp, Warning, TEXT("Tracker has %f of %s"), Health, *Name);
 }
 

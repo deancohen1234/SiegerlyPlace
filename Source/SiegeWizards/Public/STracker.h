@@ -7,6 +7,7 @@
 #include "STracker.generated.h"
 
 class UStaticMeshComponent;
+class USHealthComponent;
 
 UCLASS()
 class SIEGEWIZARDS_API ASTracker : public APawn
@@ -24,6 +25,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USHealthComponent* HealthComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float RequiredDistanceToTarget;
 
@@ -33,9 +37,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	bool bUseVelocityChange;
 
+	FVector NextPathPoint;
+
 	FVector GetNextPathPoint();
 
-	FVector NextPathPoint;
+	//dynamic material to pulse
+	UMaterialInstanceDynamic* MatInst;
+
+	UFUNCTION()
+	void HandleTakeDamage(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
 
 public:	
 	// Called every frame
