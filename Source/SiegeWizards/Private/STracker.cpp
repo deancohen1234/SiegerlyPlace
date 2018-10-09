@@ -26,6 +26,9 @@ ASTracker::ASTracker()
 	MovementForce = 1000.0f;
 
 	RequiredDistanceToTarget = 100.0f;
+
+	BaseDamage = 100;
+	DamageRadius = 200;
 }
 
 // Called when the game starts or when spawned
@@ -100,5 +103,30 @@ void ASTracker::HandleTakeDamage(USHealthComponent* HealthComp, float Health, fl
 	FString Name = HealthComp->GetOwner()->GetName();
 
 	UE_LOG(LogTemp, Warning, TEXT("Tracker has %f of %s"), Health, *Name);
+
+	if (Health <= 0) 
+	{
+		SelfDestruct();
+	}
+}
+
+void ASTracker::SelfDestruct()
+{
+
+	if (bExploded) return;
+
+	bExploded = true;
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), BaseDamage, GetActorLocation(), DamageRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 16, FColor::Cyan, false, 1.0f, 0, 1.0f);
+
+	//delete actor immediately
+	Destroy();
 }
 

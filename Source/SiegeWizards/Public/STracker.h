@@ -37,6 +37,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	bool bUseVelocityChange;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
+	float BaseDamage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
+	float DamageRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
+	UParticleSystem* ExplosionEffect;
+
 	FVector NextPathPoint;
 
 	FVector GetNextPathPoint();
@@ -44,8 +53,12 @@ protected:
 	//dynamic material to pulse
 	UMaterialInstanceDynamic* MatInst;
 
+	bool bExploded;
+
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	void SelfDestruct();
 
 
 public:	
