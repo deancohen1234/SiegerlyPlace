@@ -47,6 +47,9 @@ protected:
 	void StopFire();
 	void ReloadWeapon();
 
+	void LeanLeft();
+	void LeanRight();
+
 	UFUNCTION()
 	void OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
@@ -85,7 +88,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Aiming", meta = (ClampMin = 0.0, ClampMax = 100.0))
 	float ZoomSpeed = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
+	float LeanRotationAmount; //in degrees
+
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
+	float LeanTranslationAmount; //in units in direction
+
 	float DefaultFOV;
+	FVector DefaultCameraPosition;
+	FRotator DefaultCameraRotation;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapons")
 	FName WeaponAttachSocketName;

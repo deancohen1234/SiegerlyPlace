@@ -28,6 +28,8 @@ ASWeapon::ASWeapon()
 
 	NetUpdateFrequency = 66.0f;
 	MinNetUpdateFrequency = 33.0f;
+
+	bCanAutoFire = true;
 }
 
 
@@ -201,13 +203,21 @@ void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 
 void ASWeapon::StartFire()
 {
-	float TimeBetweenShots = 60.0f / RateOfFire; //RPM converted into Rounds per Second
-
-	//check to make sure you can't just spam faster than the weapon can shoot
-	if (GetWorld()->TimeSeconds - LastTimeFired >= TimeBetweenShots) 
+	if (bCanAutoFire) 
 	{
-		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, 0.0f);
+		float TimeBetweenShots = 60.0f / RateOfFire; //RPM converted into Rounds per Second
 
+													 //check to make sure you can't just spam faster than the weapon can shoot
+		if (GetWorld()->TimeSeconds - LastTimeFired >= TimeBetweenShots)
+		{
+			GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, 0.0f);
+
+		}
+	}
+
+	else 
+	{
+		Fire();
 	}
 }
 

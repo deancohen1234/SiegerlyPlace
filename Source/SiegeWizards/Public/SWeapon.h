@@ -63,6 +63,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float ManaUsedPerShot = 3.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	bool bCanAutoFire;
+
 	/****************Particle Effects*******************/
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
@@ -98,6 +101,6 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
 
-	void StartFire();
-	void StopFire();
+	virtual void StartFire();
+	virtual void StopFire();
 };

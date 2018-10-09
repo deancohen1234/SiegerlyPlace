@@ -32,6 +32,9 @@ ASCharacter::ASCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	
 	WeaponAttachSocketName = "WeaponSocket";
+
+	LeanTranslationAmount = 3.0f;
+	LeanRotationAmount = 15.0f;
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +43,9 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	DefaultFOV = CameraComponent->FieldOfView;
+	DefaultCameraPosition = CameraComponent->RelativeLocation;
+	DefaultCameraRotation = CameraComponent->RelativeRotation;
+
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
 	//only sets up weapon when server
@@ -92,6 +98,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::ReloadWeapon);
+
+	PlayerInputComponent->BindAction("LeanLeft", IE_Pressed, this, &ASCharacter::LeanLeft);
+	PlayerInputComponent->BindAction("LeanRight", IE_Pressed, this, &ASCharacter::LeanRight);
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
@@ -150,6 +159,47 @@ void ASCharacter::SwapWeapon()
 	else 
 	{
 		SetCurrentWeapon(SecondaryWeapon);
+	}
+}
+
+void ASCharacter::LeanLeft() 
+{
+
+	if (CameraComponent->RelativeLocation.Equals(DefaultCameraPosition)) 
+	{
+		//lean camera left
+		//CameraComponent->SetRelativeLocationAndRotation(FVector(-LeanTranslationAmount, 0, 0), FQuat(FRotator(0, 0, -LeanRotationAmount)), true);
+
+		FVector CameraPosition = DefaultCameraPosition + FVector(0, -LeanTranslationAmount, 0);
+		FQuat CameraRotation = FQuat(DefaultCameraRotation + FRotator(0, 0, -LeanRotationAmount));
+
+		CameraComponent->SetRelativeLocationAndRotation(CameraPosition, CameraRotation, true);
+	}
+
+	else 
+	{
+		//lean camera back
+		CameraComponent->SetRelativeLocationAndRotation(DefaultCameraPosition, FQuat(DefaultCameraRotation), true);
+
+	}
+}
+
+void ASCharacter::LeanRight()
+{
+	if (CameraComponent->RelativeLocation.Equals(DefaultCameraPosition))
+	{
+		//lean camera right
+		FVector CameraPosition = DefaultCameraPosition + FVector(0, LeanTranslationAmount, 0);
+		FQuat CameraRotation = FQuat(DefaultCameraRotation + FRotator(0, 0, LeanRotationAmount));
+
+		CameraComponent->SetRelativeLocationAndRotation(CameraPosition, CameraRotation, true);
+	}
+
+	else
+	{
+		//lean camera right
+		CameraComponent->SetRelativeLocationAndRotation(DefaultCameraPosition, FQuat(DefaultCameraRotation), true);
+
 	}
 }
 
