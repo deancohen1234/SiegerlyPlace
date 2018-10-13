@@ -37,6 +37,7 @@ ASWeapon::ASWeapon()
 //TODO make this class not hitscan, rather a blueprint to override for launcher and other kinds of weapons
 void ASWeapon::Fire() 
 {
+
 	if (Role < ROLE_Authority) 
 	{
 		//client calls this, client does nothing, it just tells server what to do

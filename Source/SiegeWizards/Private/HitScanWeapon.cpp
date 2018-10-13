@@ -11,6 +11,14 @@
 
 void AHitScanWeapon::Fire()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Client Firing %d"), (int)Role);
+
+	if (Role < ROLE_Authority)
+	{
+		//client calls this, client does nothing, it just tells server what to do
+		ServerFire();
+	}
+
 	AActor* Owner = GetOwner();
 
 	if (!Owner) return;

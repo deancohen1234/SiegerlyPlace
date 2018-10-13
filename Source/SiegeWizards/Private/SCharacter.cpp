@@ -99,6 +99,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::ReloadWeapon);
 
+	PlayerInputComponent->BindAction("SwapWeapon", IE_Pressed, this, &ASCharacter::SwapWeapon);
+
 	PlayerInputComponent->BindAction("LeanLeft", IE_Pressed, this, &ASCharacter::LeanLeft);
 	PlayerInputComponent->BindAction("LeanRight", IE_Pressed, this, &ASCharacter::LeanRight);
 }
@@ -150,6 +152,12 @@ void ASCharacter::EndZoom()
 
 void ASCharacter::SwapWeapon() 
 {
+	if (Role < ROLE_Authority) 
+	{
+		ServerSwapWeapon();
+		return;
+	}
+
 	bIsUsingPrimary = !bIsUsingPrimary;
 
 	if (bIsUsingPrimary) 
@@ -285,6 +293,16 @@ FString ASCharacter::GetFormattedAmmoString() const
 	Text += FString::SanitizeFloat(MaxMana);
 
 	return Text;
+}
+
+void ASCharacter::ServerSwapWeapon_Implementation()
+{
+	SwapWeapon();
+}
+
+bool ASCharacter::ServerSwapWeapon_Validate() 
+{
+	return true;
 }
 
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 

@@ -104,6 +104,9 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSwapWeapon();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
