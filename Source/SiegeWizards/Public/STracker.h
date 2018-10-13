@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class USHealthComponent;
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class SIEGEWIZARDS_API ASTracker : public APawn
@@ -48,7 +49,16 @@ protected:
 	float DamageRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
+	float SelfDamageInterval;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
 	UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundCue* SelfDestructSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundCue* ExplosionSound;
 
 	FVector NextPathPoint;
 

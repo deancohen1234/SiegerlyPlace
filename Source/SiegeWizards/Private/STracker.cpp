@@ -9,6 +9,7 @@
 #include "SHealthComponent.h"
 #include "SCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Sound/SoundCue.h"
 
 
 // Sets default values
@@ -38,6 +39,8 @@ ASTracker::ASTracker()
 
 	BaseDamage = 100;
 	DamageRadius = 200;
+
+	SelfDamageInterval = 0.2f;
 }
 
 // Called when the game starts or when spawned
@@ -45,8 +48,12 @@ void ASTracker::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//find initial move to
-	NextPathPoint = GetNextPathPoint();
+	if (Role == ROLE_Authority) 
+	{
+		//find initial move to
+		NextPathPoint = GetNextPathPoint();
+	}
+	
 }
 
 // Called every frame
@@ -54,26 +61,30 @@ void ASTracker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
-
-	if (DistanceToTarget <= RequiredDistanceToTarget) 
+	if (Role == ROLE_Authority)
 	{
-		NextPathPoint = GetNextPathPoint();		
+
+		float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
+
+		if (DistanceToTarget <= RequiredDistanceToTarget)
+		{
+			NextPathPoint = GetNextPathPoint();
+		}
+
+		else
+		{
+			//keeping moving towards next target
+			FVector DirectionToPoint = NextPathPoint - GetActorLocation();
+			DirectionToPoint.Normalize();
+			DirectionToPoint *= MovementForce;
+
+			MeshComponent->AddForce(DirectionToPoint, NAME_None, bUseVelocityChange);
+
+			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + DirectionToPoint, 32.0f, FColor::Yellow, false, 0.0f, 0, 1.0f);
+		}
+
+		DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f, 0, 1.0f);
 	}
-
-	else 
-	{
-		//keeping moving towards next target
-		FVector DirectionToPoint = NextPathPoint - GetActorLocation();
-		DirectionToPoint.Normalize();
-		DirectionToPoint *= MovementForce;
-
-		MeshComponent->AddForce(DirectionToPoint, NAME_None, bUseVelocityChange);
-
-		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + DirectionToPoint, 32.0f, FColor::Yellow, false, 0.0f, 0, 1.0f);
-	}
-
-	DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f, 0, 1.0f);
 }
 
 FVector ASTracker::GetNextPathPoint()
@@ -140,6 +151,7 @@ void ASTracker::SelfDestruct()
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 16, FColor::Cyan, false, 1.0f, 0, 1.0f);
 
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
 	//delete actor immediately
 	Destroy();
 }
@@ -155,9 +167,11 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 			//we overlapped with the player
 
 			//start tick 20 damage every .5 seconds
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTracker::DamageSelf, 0.5f, true, 0.0f);
+			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTracker::DamageSelf, SelfDamageInterval, true, 0.0f);
 
 			bStartedSelfDestruct = true;
+
+			UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
 		}
 	}
 }
