@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "DrawDebugHelpers.h"
 #include "SHealthComponent.h"
+#include "SCharacter.h"
+#include "Components/SphereComponent.h"
 
 
 // Sets default values
@@ -18,6 +20,13 @@ ASTracker::ASTracker()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
 	RootComponent = MeshComponent;
 	MeshComponent->SetSimulatePhysics(true); 
+
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Component"));
+	SphereComponent->SetSphereRadius(200);
+	SphereComponent->SetupAttachment(RootComponent);
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	HealthComponent = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTracker::HandleTakeDamage);
@@ -110,6 +119,11 @@ void ASTracker::HandleTakeDamage(USHealthComponent* HealthComp, float Health, fl
 	}
 }
 
+void ASTracker::DamageSelf()
+{
+	UGameplayStatics::ApplyDamage(this, 20, GetInstigatorController(), this, nullptr);
+}
+
 void ASTracker::SelfDestruct()
 {
 
@@ -130,3 +144,20 @@ void ASTracker::SelfDestruct()
 	Destroy();
 }
 
+void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
+{
+	if (bStartedSelfDestruct == false)
+	{
+		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
+		if (PlayerPawn)
+		{
+
+			//we overlapped with the player
+
+			//start tick 20 damage every .5 seconds
+			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTracker::DamageSelf, 0.5f, true, 0.0f);
+
+			bStartedSelfDestruct = true;
+		}
+	}
+}

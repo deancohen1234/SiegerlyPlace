@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class USHealthComponent;
+class USphereComponent;
 
 UCLASS()
 class SIEGEWIZARDS_API ASTracker : public APawn
@@ -27,6 +28,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USHealthComponent* HealthComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USphereComponent* SphereComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float RequiredDistanceToTarget;
@@ -53,7 +57,12 @@ protected:
 	//dynamic material to pulse
 	UMaterialInstanceDynamic* MatInst;
 
+	FTimerHandle TimerHandle_SelfDamage;
+
+	void DamageSelf();
+
 	bool bExploded;
+	bool bStartedSelfDestruct;
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -65,5 +74,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 };
