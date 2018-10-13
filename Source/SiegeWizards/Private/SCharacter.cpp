@@ -150,8 +150,10 @@ void ASCharacter::EndZoom()
 	bWantsToZoom = false;
 }
 
+//swap weapon needs to be server side, otherwise client will spawn object and weapon will think it is has authority
 void ASCharacter::SwapWeapon() 
 {
+	//if not server
 	if (Role < ROLE_Authority) 
 	{
 		ServerSwapWeapon();
@@ -176,8 +178,6 @@ void ASCharacter::LeanLeft()
 	if (CameraComponent->RelativeLocation.Equals(DefaultCameraPosition)) 
 	{
 		//lean camera left
-		//CameraComponent->SetRelativeLocationAndRotation(FVector(-LeanTranslationAmount, 0, 0), FQuat(FRotator(0, 0, -LeanRotationAmount)), true);
-
 		FVector CameraPosition = DefaultCameraPosition + FVector(0, -LeanTranslationAmount, 0);
 		FQuat CameraRotation = FQuat(DefaultCameraRotation + FRotator(0, 0, -LeanRotationAmount));
 
@@ -263,7 +263,6 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, f
 		if (Health <= 0 && !bDied) 
 		{
 			//Die
-
 			bDied = true;
 
 			GetMovementComponent()->StopMovementImmediately();

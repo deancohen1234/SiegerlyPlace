@@ -22,6 +22,7 @@ ASTracker::ASTracker()
 	RootComponent = MeshComponent;
 	MeshComponent->SetSimulatePhysics(true); 
 
+	//sphere component used for self destruct radius
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Component"));
 	SphereComponent->SetSphereRadius(200);
 	SphereComponent->SetupAttachment(RootComponent);
@@ -48,6 +49,7 @@ void ASTracker::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//server is in charge of telling tracker who to follow, and how to do it
 	if (Role == ROLE_Authority) 
 	{
 		//find initial move to
@@ -163,7 +165,6 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 		if (PlayerPawn)
 		{
-
 			//we overlapped with the player
 
 			//start tick 20 damage every .5 seconds
