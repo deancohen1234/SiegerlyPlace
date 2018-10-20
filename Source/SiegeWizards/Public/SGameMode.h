@@ -4,17 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "SiegeWizardsGameModeBase.generated.h"
+#include "SGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIEGEWIZARDS_API ASiegeWizardsGameModeBase : public AGameModeBase
+class SIEGEWIZARDS_API ASGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
 	
-	
+public:
+	virtual void StartPlay() override;
 	
 };

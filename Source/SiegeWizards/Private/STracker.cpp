@@ -92,7 +92,6 @@ void ASTracker::Tick(float DeltaTime)
 FVector ASTracker::GetNextPathPoint()
 {
 	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
-
 	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), Cast<AActor>(PlayerPawn));
 
 	if (NavPath->PathPoints.Num() > 1) 
