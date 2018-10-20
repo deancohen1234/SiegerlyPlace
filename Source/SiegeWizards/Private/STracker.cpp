@@ -63,7 +63,7 @@ void ASTracker::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Role == ROLE_Authority)
+	if (Role == ROLE_Authority && bExploded == false)
 	{
 
 		float DistanceToTarget = (GetActorLocation() - NextPathPoint).Size();
@@ -109,8 +109,6 @@ void ASTracker::HandleTakeDamage(USHealthComponent* HealthComp, float Health, fl
 {
 	//explode on hit point 0
 
-	//TODO pulse the material on hit
-
 	if (MatInst == nullptr) 
 	{
 		MatInst = MeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComponent->GetMaterial(0));
@@ -146,16 +144,26 @@ void ASTracker::SelfDestruct()
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 
-	TArray<AActor*> IgnoredActors;
-	IgnoredActors.Add(this);
-
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), BaseDamage, GetActorLocation(), DamageRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
-
-	DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 16, FColor::Cyan, false, 1.0f, 0, 1.0f);
-
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
-	//delete actor immediately
-	Destroy();
+
+	MeshComponent->SetVisibility(false, true);
+	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (Role == ROLE_Authority) 
+	{
+		TArray<AActor*> IgnoredActors;
+		IgnoredActors.Add(this);
+
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), BaseDamage, GetActorLocation(), DamageRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+		DrawDebugSphere(GetWorld(), GetActorLocation(), DamageRadius, 16, FColor::Cyan, false, 1.0f, 0, 1.0f);
+
+		//delete actor, give 2 seconds for client to spawn explosion
+		SetLifeSpan(2.0f);
+	}
+
+
+	
 }
 
 void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
@@ -165,10 +173,13 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 		ASCharacter* PlayerPawn = Cast<ASCharacter>(OtherActor);
 		if (PlayerPawn)
 		{
+			if (Role == ROLE_Authority) 
+			{
+				GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTracker::DamageSelf, SelfDamageInterval, true, 0.0f);
+			}
 			//we overlapped with the player
 
 			//start tick 20 damage every .5 seconds
-			GetWorldTimerManager().SetTimer(TimerHandle_SelfDamage, this, &ASTracker::DamageSelf, SelfDamageInterval, true, 0.0f);
 
 			bStartedSelfDestruct = true;
 
