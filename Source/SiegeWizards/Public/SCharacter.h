@@ -94,6 +94,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
 	float LeanTranslationAmount; //in units in direction
 
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "TeamSetup")
+	bool bIsAttackingTeam;
+
 	float DefaultFOV;
 	FVector DefaultCameraPosition;
 	FRotator DefaultCameraRotation;
@@ -120,7 +123,7 @@ public:
 
 	float GetMana();
 
-
+	bool GetIsAttackingTeam() const;
 
 	UFUNCTION(BlueprintCallable)
 	FString GetFormattedAmmoString() const;

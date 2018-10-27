@@ -50,7 +50,7 @@ void USHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage,
 
 	if (CurrentHealth <= 0) 
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Pawn Died"));
+		
 	}
 
 	OnHealthChanged.Broadcast(this, CurrentHealth, Damage, DamageType, InstigatedBy, DamageCauser);

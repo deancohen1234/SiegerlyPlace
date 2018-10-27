@@ -92,7 +92,12 @@ void ASTracker::Tick(float DeltaTime)
 FVector ASTracker::GetNextPathPoint()
 {
 	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
+
+	if (!ensure(PlayerPawn)) return FVector::ZeroVector;
+
 	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), Cast<AActor>(PlayerPawn));
+
+	if (!NavPath) return FVector::ZeroVector;
 
 	if (NavPath->PathPoints.Num() > 1) 
 	{
@@ -146,6 +151,7 @@ void ASTracker::SelfDestruct()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
 
 	MeshComponent->SetVisibility(false, true);
+	MeshComponent->SetSimulatePhysics(false);
 	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	if (Role == ROLE_Authority) 

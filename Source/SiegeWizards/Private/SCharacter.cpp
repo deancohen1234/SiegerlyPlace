@@ -35,6 +35,8 @@ ASCharacter::ASCharacter()
 
 	LeanTranslationAmount = 3.0f;
 	LeanRotationAmount = 15.0f;
+
+	bIsAttackingTeam = false;
 }
 
 // Called when the game starts or when spawned
@@ -285,6 +287,11 @@ float ASCharacter::GetMana()
 	return CurrentMana;
 }
 
+bool ASCharacter::GetIsAttackingTeam() const
+{
+	return bIsAttackingTeam;
+}
+
 FString ASCharacter::GetFormattedAmmoString() const
 {
 	FString Text = FString::SanitizeFloat(CurrentMana);
@@ -311,5 +318,6 @@ void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
 	//bDied needed to be replicated for the death animation
 	DOREPLIFETIME(ASCharacter, bDied);
+	DOREPLIFETIME(ASCharacter, bIsAttackingTeam);
 }
 

@@ -25,4 +25,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
 	FString GetTimeLeftInRound();
+
+	void EndGame();
 };
