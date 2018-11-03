@@ -3,35 +3,42 @@
 #include "SGameMode.h"
 #include "Engine/World.h"
 #include "SCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 
 void ASGameMode::StartPlay() 
 {
 	Super::StartPlay();
 
+}
 
-	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
+{
+	ASCharacter* Character = Cast<ASCharacter>(NewPlayerController->GetPawn());
+
+	if (NewPlayerController->GetPawn()) 
 	{
-		APlayerController* PlayerController = *Iterator;
-		if (PlayerController)
+		UE_LOG(LogTemp, Warning, TEXT("Pawn Name is %s"), *NewPlayerController->GetPawn()->GetName());
+	}
+
+	FString Result = "";
+
+	if (Character)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character is alive"));
+		if (Character->GetIsAttackingTeam())
 		{
-			ASCharacter* Character = Cast<ASCharacter>(PlayerController->GetPawn());
-
-			UE_LOG(LogTemp, Warning, TEXT("Game Mode Starting %d"), Character->GetIsAttackingTeam());
-
-			if (Character->GetIsAttackingTeam()) 
-			{
-				//player is on attack
-				PlayerController->StartSpot = FindPlayerStart(PlayerController, "Attackers");
-			}
-			else 
-			{
-				//player is on defense
-				PlayerController->StartSpot = FindPlayerStart(PlayerController, "Defenders");
-			}
+			//player is on attack
+			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, "Attackers");
+		}
+		else
+		{
+			//player is on defense
+			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, "Defenders");
 		}
 	}
 
+	return Result;
 }
 
 

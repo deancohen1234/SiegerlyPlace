@@ -18,4 +18,5 @@ class SIEGEWIZARDS_API ASGameMode : public AGameModeBase
 public:
 	virtual void StartPlay() override;
 	
+	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = TEXT("")) override;
 };

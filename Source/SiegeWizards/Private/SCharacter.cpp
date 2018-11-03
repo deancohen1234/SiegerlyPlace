@@ -58,7 +58,6 @@ void ASCharacter::BeginPlay()
 
 	CurrentMana = MaxMana;
 
-
 	bDied = false;
 }
 
