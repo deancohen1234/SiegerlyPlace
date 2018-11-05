@@ -2,44 +2,51 @@
 
 #include "SGameMode.h"
 #include "Engine/World.h"
-#include "SCharacter.h"
+#include "SPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
 
-void ASGameMode::StartPlay() 
+ASGameMode::ASGameMode()
+{
+	TeamSpots = { 0, 1, 2, 3 };
+}
+
+void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
-
 }
 
 FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
 {
-	ASCharacter* Character = Cast<ASCharacter>(NewPlayerController->GetPawn());
-
-	if (NewPlayerController->GetPawn()) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Pawn Name is %s"), *NewPlayerController->GetPawn()->GetName());
-	}
+	ASPlayerController* PlayerController = Cast<ASPlayerController>(NewPlayerController);
 
 	FString Result = "";
 
-	if (Character)
+	if (PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Character is alive"));
-		if (Character->GetIsAttackingTeam())
+		//greater than 2, you are a Defender
+		if (GetRandomTeamIndex() >= 2) 
 		{
-			//player is on attack
-			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, "Attackers");
+			PlayerController->SetTeamName("Defenders"); 
+			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, PlayerController->GetTeamName());
 		}
-		else
+		else 
 		{
-			//player is on defense
-			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, "Defenders");
+			PlayerController->SetTeamName("Attackers");
+			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, PlayerController->GetTeamName());
 		}
 	}
 
 	return Result;
 }
 
+//returns value from TeamSpots and removes value so there are no duplicates
+int ASGameMode::GetRandomTeamIndex() 
+{
+	int ArrayIndex = FMath::RandHelper(TeamSpots.Num());
+	int TeamIndex = TeamSpots[ArrayIndex];
 
+	TeamSpots.RemoveAt(ArrayIndex);
 
+	return TeamIndex;
+}
