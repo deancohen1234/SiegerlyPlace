@@ -10,6 +10,7 @@
 #include "SWeapon.h"
 #include "Net/UnrealNetwork.h"
 #include "SiegeWizards.h"
+#include "SGameState.h"
 
 
 // Sets default values
@@ -49,6 +50,9 @@ void ASCharacter::BeginPlay()
 	DefaultCameraRotation = CameraComponent->RelativeRotation;
 
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+	
+	ASGameState* GameState = Cast<ASGameState>(GetWorld()->GetGameState());
+	this->OnTakeAnyDamage.AddDynamic(GameState, &ASGameState::OnPlayerHealthChanged);
 
 	//only sets up weapon when server
 	if (Role == ROLE_Authority) 

@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "SPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "SHealthComponent.h"
 
 
 ASGameMode::ASGameMode()

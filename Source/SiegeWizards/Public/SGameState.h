@@ -37,5 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
 	ETeamStatus GetTeamsStatus();
 
+	UFUNCTION()
+	void OnPlayerHealthChanged(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser);
+
 	void EndGame();
 };
