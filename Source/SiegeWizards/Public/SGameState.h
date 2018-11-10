@@ -34,7 +34,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
 	FString GetTimeLeftInRound();
 
-	ETeamStatus IsTeamAllDead();
+	UFUNCTION(BlueprintCallable, Category = "Rounds")
+	ETeamStatus GetTeamsStatus();
 
 	void EndGame();
 };

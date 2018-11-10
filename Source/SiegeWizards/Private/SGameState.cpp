@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SPlayerController.h"
 
+//called on UI for player on changed value
 FString ASGameState::GetTimeLeftInRound()
 {
 	int seconds = (int)(DefaultRoundLength - GetServerWorldTimeSeconds());
@@ -25,8 +26,16 @@ FString ASGameState::GetTimeLeftInRound()
 
 	if (Role == ROLE_Authority) 
 	{
-		ETeamStatus TeamStatus = IsTeamAllDead();
+		//this should not need to be called on every frame
+		ETeamStatus TeamStatus = GetTeamsStatus();
 		UE_LOG(LogTemp, Warning, TEXT("Status: %d"), (int)TeamStatus);
+		
+		//if one or both teams are dead
+		if (TeamStatus < ETeamStatus::NoTeamsDead) 
+		{
+			//set round to five seconds left
+			seconds = 5;
+		}
 
 	}
 
@@ -34,7 +43,7 @@ FString ASGameState::GetTimeLeftInRound()
 }
 
 //TODO this function makes assumption there are only 4 players, 2 and 2. Its bad and should be made more dynamic
-ETeamStatus ASGameState::IsTeamAllDead()
+ETeamStatus ASGameState::GetTeamsStatus()
 {
 	TSubclassOf<ASPlayerController> PlayerControllersType;
 	PlayerControllersType = ASPlayerController::StaticClass();
