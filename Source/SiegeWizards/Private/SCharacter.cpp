@@ -291,6 +291,11 @@ bool ASCharacter::GetIsAttackingTeam() const
 	return bIsAttackingTeam;
 }
 
+bool ASCharacter::IsPlayerDead() const
+{
+	return bDied;
+}
+
 FString ASCharacter::GetFormattedAmmoString() const
 {
 	FString Text = FString::SanitizeFloat(CurrentMana);

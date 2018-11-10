@@ -6,6 +6,14 @@
 #include "GameFramework/GameStateBase.h"
 #include "SGameState.generated.h"
 
+UENUM()
+enum class ETeamStatus : uint8
+{
+	AttackingTeamDead,
+	DefendingTeamDead,
+	BothTeamsDead,
+	NoTeamsDead
+};
 /**
  * 
  */
@@ -25,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
 	FString GetTimeLeftInRound();
+
+	ETeamStatus IsTeamAllDead();
 
 	void EndGame();
 };

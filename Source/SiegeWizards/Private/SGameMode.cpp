@@ -21,7 +21,6 @@ FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, 
 	ASPlayerController* PlayerController = Cast<ASPlayerController>(NewPlayerController);
 
 	FString Result = "";
-
 	if (PlayerController)
 	{
 		//greater than 2, you are a Defender

@@ -18,7 +18,7 @@ class SIEGEWIZARDS_API ASPlayerController : public APlayerController
 protected:
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Teams")
+	UPROPERTY(VisibleAnywhere, Category = "Teams")
 	FString TeamName;
 
 public:
@@ -28,4 +28,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Teams")
 	void SetTeamName(FString Name);
+
+	bool IsControlledPlayerDead();
 };

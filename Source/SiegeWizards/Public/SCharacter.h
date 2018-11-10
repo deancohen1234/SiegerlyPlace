@@ -125,6 +125,8 @@ public:
 
 	bool GetIsAttackingTeam() const;
 
+	bool IsPlayerDead() const;
+
 	UFUNCTION(BlueprintCallable)
 	FString GetFormattedAmmoString() const;
 };
