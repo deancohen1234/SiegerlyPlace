@@ -4,6 +4,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "SPlayerController.h"
 
+void ASGameState::StartPlay()
+{
+	//sets match to be as long as round length, from moment game starts
+	DefaultRoundLength = GetServerWorldTimeSeconds() + DefaultRoundLength;
+}
+
 //called on UI for player on changed value
 FString ASGameState::GetTimeLeftInRound()
 {
@@ -36,22 +42,19 @@ ETeamStatus ASGameState::GetTeamsStatus()
 		return ETeamStatus::NoTeamsDead;
 	}
 
-	//maybe switch this to looking for players as there may be spectating controllers
-	TSubclassOf<ASPlayerController> PlayerControllersType;
-	PlayerControllersType = ASPlayerController::StaticClass();
-	TArray<AActor*> AllPlayerControllers;
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PlayerControllersType, AllPlayerControllers);
-
 	int AttackersCount = 0;
 	int DefendersCount = 0;
+	UE_LOG(LogTemp, Warning, TEXT("Num Players: %d"), AllPlayers.Num());
 
-	UE_LOG(LogTemp, Warning, TEXT("Num PlayerControllers: %d"), AllPlayerControllers.Num());
+	if (AllPlayers.Num() <= 2) 
+	{
+		return ETeamStatus::NoTeamsDead;
+	}
 
 	//assumes all players are alive, if it can't find any attacker/defenders it returns proper enum
-	for (int i = 0; i < AllPlayerControllers.Num(); i++)
+	for (int i = 0; i < AllPlayers.Num(); i++)
 	{
-		ASPlayerController* PlayerController = Cast<ASPlayerController>(AllPlayerControllers[i]);
+		ASPlayerController* PlayerController = Cast<ASPlayerController>(AllPlayers[i]);
 
 		if (PlayerController)
 		{

@@ -277,7 +277,7 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, f
 
 			DetachFromControllerPendingDestroy();			
 
-			SetLifeSpan(5.0f);
+			//SetLifeSpan(5.0f);
 		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "SPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "SHealthComponent.h"
+#include "SGameState.h"
 
 
 ASGameMode::ASGameMode()
@@ -15,6 +16,7 @@ ASGameMode::ASGameMode()
 void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
+
 }
 
 FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
@@ -35,6 +37,9 @@ FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, 
 			PlayerController->SetTeamName("Attackers");
 			Result = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, PlayerController->GetTeamName());
 		}
+
+		ASGameState* GameState = GetGameState<ASGameState>();
+		GameState->AllPlayers.Add(PlayerController);
 	}
 
 	return Result;

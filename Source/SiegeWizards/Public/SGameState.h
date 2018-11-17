@@ -17,6 +17,10 @@ enum class ETeamStatus : uint8
 /**
  * 
  */
+
+class ASPlayerController;
+//class ASWeapon;
+
 UCLASS()
 class SIEGEWIZARDS_API ASGameState : public AGameStateBase
 {
@@ -29,7 +33,10 @@ protected:
 	float DefaultRoundLength;
 
 public:
-	//virtual void Tick(float DeltaTime) override;
+	
+	TArray<ASPlayerController*> AllPlayers;
+	//called from gamemode
+	void StartPlay();
 
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
 	FString GetTimeLeftInRound();
