@@ -119,6 +119,8 @@ public:
 
 	virtual FVector GetPawnViewLocation() const override;
 
+	virtual void Destroyed() override;
+
 	void UseMana(float ManaUsed);
 
 	float GetMana();

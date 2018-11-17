@@ -11,6 +11,8 @@
 #include "Net/UnrealNetwork.h"
 #include "SiegeWizards.h"
 #include "SGameState.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerState.h"
 
 
 // Sets default values
@@ -273,11 +275,18 @@ void ASCharacter::OnHealthChanged(USHealthComponent* HealthComp, float Health, f
 			GetMovementComponent()->StopMovementImmediately();
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			DetachFromControllerPendingDestroy();
+			DetachFromControllerPendingDestroy();			
 
 			SetLifeSpan(5.0f);
 		}
 	}
+}
+
+void ASCharacter::Destroyed() 
+{
+	Super::Destroyed();
+
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
 
 void ASCharacter::UseMana(float ManaAmount) 

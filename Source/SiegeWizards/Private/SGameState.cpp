@@ -30,6 +30,13 @@ FString ASGameState::GetTimeLeftInRound()
 //TODO this function makes assumption there are only 4 players, 2 and 2. Its bad and should be made more dynamic
 ETeamStatus ASGameState::GetTeamsStatus()
 {
+	//don't do logic unless you are server
+	if (Role != ROLE_Authority) 
+	{
+		return ETeamStatus::NoTeamsDead;
+	}
+
+	//maybe switch this to looking for players as there may be spectating controllers
 	TSubclassOf<ASPlayerController> PlayerControllersType;
 	PlayerControllersType = ASPlayerController::StaticClass();
 	TArray<AActor*> AllPlayerControllers;
@@ -38,6 +45,8 @@ ETeamStatus ASGameState::GetTeamsStatus()
 
 	int AttackersCount = 0;
 	int DefendersCount = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("Num PlayerControllers: %d"), AllPlayerControllers.Num());
 
 	//assumes all players are alive, if it can't find any attacker/defenders it returns proper enum
 	for (int i = 0; i < AllPlayerControllers.Num(); i++)
