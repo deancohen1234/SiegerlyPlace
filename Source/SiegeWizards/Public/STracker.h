@@ -10,6 +10,8 @@ class UStaticMeshComponent;
 class USHealthComponent;
 class USphereComponent;
 class USoundCue;
+class ASPlayerController;
+class UProjectileMovementComponent;
 
 UCLASS()
 class SIEGEWIZARDS_API ASTracker : public APawn
@@ -19,6 +21,9 @@ class SIEGEWIZARDS_API ASTracker : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ASTracker();
+
+private:
+	AActor* TargetingActor = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,6 +37,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USphereComponent* SphereComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Projectile)
+	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float RequiredDistanceToTarget;
@@ -85,4 +93,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	//when player throws tracker into battlefield
+	void SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirection);
+
+	void Throw(FVector AimDirection);
 };

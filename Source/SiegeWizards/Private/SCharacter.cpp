@@ -13,6 +13,7 @@
 #include "SGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerState.h"
+#include "STracker.h"
 
 
 // Sets default values
@@ -107,6 +108,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ASCharacter::ReloadWeapon);
 
 	PlayerInputComponent->BindAction("SwapWeapon", IE_Pressed, this, &ASCharacter::SwapWeapon);
+	PlayerInputComponent->BindAction("ThrowSpecial", IE_Pressed, this, &ASCharacter::ThrowSpecial);
 
 	PlayerInputComponent->BindAction("LeanLeft", IE_Pressed, this, &ASCharacter::LeanLeft);
 	PlayerInputComponent->BindAction("LeanRight", IE_Pressed, this, &ASCharacter::LeanRight);
@@ -177,6 +179,32 @@ void ASCharacter::SwapWeapon()
 	{
 		SetCurrentWeapon(SecondaryWeapon);
 	}
+}
+
+void ASCharacter::ThrowSpecial()
+{
+	//if player is out of mana
+	if (GetMana() <= 0)
+	{
+		return;
+	}
+
+	UseMana(100);
+
+	if (!SpecialProjectile) return;
+
+	FVector EyesLocation;
+	FRotator EyesRotation;
+
+	GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
+	FVector SpawnLocation = EyesLocation + (GetActorForwardVector() * 250.0f); //spawn special about 2.5m infront of player
+
+	FActorSpawnParameters Parameters;
+	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ASTracker* Tracker = GetWorld()->SpawnActor<ASTracker>(SpecialProjectile, SpawnLocation, EyesRotation, Parameters);
+
+	Tracker->Throw(EyesRotation.Vector());
 }
 
 void ASCharacter::LeanLeft() 

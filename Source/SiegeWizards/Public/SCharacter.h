@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USHealthComponent;
 class ASWeapon;
+class ASTracker;
 
 UCLASS()
 class SIEGEWIZARDS_API ASCharacter : public ACharacter
@@ -46,6 +47,7 @@ protected:
 	void StartFire();
 	void StopFire();
 	void ReloadWeapon();
+	void ThrowSpecial();
 
 	void LeanLeft();
 	void LeanRight();
@@ -67,6 +69,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ASWeapon> SecondaryWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	TSubclassOf<ASTracker> SpecialProjectile;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;

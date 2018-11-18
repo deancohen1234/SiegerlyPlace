@@ -9,7 +9,10 @@
 #include "SHealthComponent.h"
 #include "SCharacter.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Sound/SoundCue.h"
+#include "SPlayerController.h"
+#include "SCharacter.h"
 
 
 // Sets default values
@@ -29,6 +32,11 @@ ASTracker::ASTracker()
 	SphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Projectile Movement Component"));
+	ProjectileMovementComponent->InitialSpeed = 2000;
+
+	ProjectileMovementComponent->bShouldBounce = true;
 
 	HealthComponent = CreateDefaultSubobject<USHealthComponent>(TEXT("Health Component"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ASTracker::HandleTakeDamage);
@@ -191,4 +199,45 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 			UGameplayStatics::SpawnSoundAttached(SelfDestructSound, RootComponent);
 		}
 	}
+}
+
+//Gets closest actor to tracker
+void ASTracker::SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirection)
+{
+	TSubclassOf<ASPlayerController> PlayerControllersType;
+	PlayerControllersType = ASPlayerController::StaticClass();
+	TArray<AActor*> AllPlayerControllers;
+
+	//list of all enemy players
+	TArray<AActor*> EnemyPlayers;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PlayerControllersType, AllPlayerControllers);
+
+	for (int i = 0; i < AllPlayerControllers.Num(); i++) 
+	{
+		ASPlayerController* PlayerController = Cast<ASPlayerController>(AllPlayerControllers[i]);
+
+		if (PlayerController->GetTeamName() != Owner->GetTeamName()) 
+		{
+			EnemyPlayers.Add(PlayerController->GetPawn());
+		}
+	}
+
+	//get enemy who is closest to tracker ball
+	float CurrentMaxDist = 100000000.0f;
+	for (int i = 0; i < EnemyPlayers.Num(); i++) 
+	{
+		float Distance = FVector::Dist(EnemyPlayers[i]->GetActorLocation(), GetActorLocation());
+
+		if (Distance <= CurrentMaxDist) 
+		{
+			TargetingActor = EnemyPlayers[i];
+			CurrentMaxDist = Distance;
+		}
+	}
+}
+
+void ASTracker::Throw(FVector AimDirection)
+{
+	ProjectileMovementComponent->Velocity = AimDirection * ProjectileMovementComponent->InitialSpeed;
 }
