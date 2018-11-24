@@ -32,8 +32,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Rounds")
 	float DefaultRoundLength;
 
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Teams")
+	ETeamStatus TeamStatus;
+
 public:
 	
+	ASGameState();
+
 	TArray<ASPlayerController*> AllPlayers;
 	//called from gamemode
 	void StartPlay();
@@ -42,7 +47,9 @@ public:
 	FString GetTimeLeftInRound();
 
 	UFUNCTION(BlueprintCallable, Category = "Rounds")
-	ETeamStatus GetTeamsStatus();
+	ETeamStatus GetTeamsStatus() const;
+
+	void CalculateTeamsStatus();
 
 	UFUNCTION()
 	void OnPlayerHealthChanged(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser);

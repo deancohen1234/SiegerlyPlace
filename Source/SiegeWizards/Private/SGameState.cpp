@@ -3,6 +3,12 @@
 #include "SGameState.h"
 #include "Kismet/GameplayStatics.h"
 #include "SPlayerController.h"
+#include "Net/UnrealNetwork.h"
+
+ASGameState::ASGameState()
+{
+	TeamStatus = ETeamStatus::NoTeamsDead;
+}
 
 void ASGameState::StartPlay()
 {
@@ -34,21 +40,27 @@ FString ASGameState::GetTimeLeftInRound()
 }
 
 //TODO this function makes assumption there are only 4 players, 2 and 2. Its bad and should be made more dynamic
-ETeamStatus ASGameState::GetTeamsStatus()
+ETeamStatus ASGameState::GetTeamsStatus() const
+{
+	return TeamStatus;
+}
+
+//setting global team statuses. Only happens on server
+void ASGameState::CalculateTeamsStatus()
 {
 	//don't do logic unless you are server
-	if (Role != ROLE_Authority) 
+	if (Role != ROLE_Authority)
 	{
-		return ETeamStatus::NoTeamsDead;
+		return;
 	}
 
 	int AttackersCount = 0;
 	int DefendersCount = 0;
-	UE_LOG(LogTemp, Warning, TEXT("Num Players: %d"), AllPlayers.Num());
 
-	if (AllPlayers.Num() <= 2) 
+
+	if (AllPlayers.Num() <= 2)
 	{
-		return ETeamStatus::NoTeamsDead;
+		//return ETeamStatus::NoTeamsDead;
 	}
 
 	//assumes all players are alive, if it can't find any attacker/defenders it returns proper enum
@@ -62,7 +74,7 @@ ETeamStatus ASGameState::GetTeamsStatus()
 
 			if (TeamName == "Attackers")
 			{
-				if (!PlayerController->IsControlledPlayerDead()) 
+				if (!PlayerController->IsControlledPlayerDead())
 				{
 					AttackersCount++;
 				}
@@ -72,40 +84,38 @@ ETeamStatus ASGameState::GetTeamsStatus()
 				if (!PlayerController->IsControlledPlayerDead())
 				{
 					DefendersCount++;
-				}			
+				}
 			}
 		}
 	}
 
 	if (AttackersCount == 0 && DefendersCount == 0)
 	{
-		return ETeamStatus::BothTeamsDead;
+		TeamStatus = ETeamStatus::BothTeamsDead;
 	}
 
 	else if (AttackersCount == 0)
 	{
-		return ETeamStatus::AttackingTeamDead;
+		TeamStatus = ETeamStatus::AttackingTeamDead;
 	}
 
 	else if (DefendersCount == 0)
 	{
-		return ETeamStatus::DefendingTeamDead;
+		TeamStatus = ETeamStatus::DefendingTeamDead;
 	}
 
 	else
 	{
-		return ETeamStatus::NoTeamsDead;
+		TeamStatus = ETeamStatus::NoTeamsDead;
 	}
-
-
-	//TODO Should return an error because should have returned previously
-	return ETeamStatus::NoTeamsDead;
 }
 
 void ASGameState::OnPlayerHealthChanged(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player Health Changed"));
-	if (Role == ROLE_Authority)
+
+	CalculateTeamsStatus();
+	/*if (Role == ROLE_Authority)
 	{
 		//this should not need to be called on every frame
 		ETeamStatus TeamStatus = GetTeamsStatus();
@@ -116,11 +126,18 @@ void ASGameState::OnPlayerHealthChanged(AActor * DamagedActor, float Damage, con
 			DefaultRoundLength = GetServerWorldTimeSeconds() + 5;
 		}
 
-	}
+	}*/
 }
 
 void ASGameState::EndGame()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Ending Game"));
 	UGameplayStatics::OpenLevel(GetWorld(), FName("Main"));
+}
+
+void ASGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASGameState, TeamStatus, COND_None);
 }
