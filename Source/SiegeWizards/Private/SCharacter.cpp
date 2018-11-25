@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerState.h"
 #include "STracker.h"
+#include "SPlayerController.h"
 
 
 // Sets default values
@@ -204,6 +205,9 @@ void ASCharacter::ThrowSpecial()
 	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ASTracker* Tracker = GetWorld()->SpawnActor<ASTracker>(SpecialProjectile, SpawnLocation, EyesRotation, Parameters);
 
+	ASPlayerController* PlayerController = Cast<ASPlayerController>(GetController());
+
+	Tracker->SetTrackerOwner(PlayerController);
 	Tracker->Throw(EyesRotation.Vector());
 }
 

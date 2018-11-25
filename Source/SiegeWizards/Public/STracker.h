@@ -23,6 +23,9 @@ public:
 	ASTracker();
 
 private:
+	UPROPERTY(Replicated)
+	ASPlayerController* TrackerOwner = nullptr;
+
 	AActor* TargetingActor = nullptr;
 
 protected:
@@ -95,7 +98,12 @@ public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 	//when player throws tracker into battlefield
-	void SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirection);
+	void SetTrackerTarget();
+	
+	void SetTrackerOwner(ASPlayerController* Owner);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetTrackerTarget();
 
 	void Throw(FVector AimDirection);
 };

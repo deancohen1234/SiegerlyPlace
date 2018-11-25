@@ -13,6 +13,7 @@
 #include "Sound/SoundCue.h"
 #include "SPlayerController.h"
 #include "SCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values
@@ -61,7 +62,7 @@ void ASTracker::BeginPlay()
 	if (Role == ROLE_Authority) 
 	{
 		//find initial move to
-		NextPathPoint = GetNextPathPoint();
+		//NextPathPoint = GetNextPathPoint();
 	}
 	
 }
@@ -99,11 +100,11 @@ void ASTracker::Tick(float DeltaTime)
 
 FVector ASTracker::GetNextPathPoint()
 {
-	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
+	//ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	if (!ensure(PlayerPawn)) return FVector::ZeroVector;
+	if (!ensure(TargetingActor)) return FVector::ZeroVector;
 
-	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), Cast<AActor>(PlayerPawn));
+	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), TargetingActor);
 
 	if (!NavPath) return FVector::ZeroVector;
 
@@ -174,8 +175,6 @@ void ASTracker::SelfDestruct()
 		//delete actor, give 2 seconds for client to spawn explosion
 		SetLifeSpan(2.0f);
 	}
-
-
 	
 }
 
@@ -201,8 +200,21 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 	}
 }
 
+void ASTracker::SetTrackerOwner(ASPlayerController * Owner)
+{
+	TrackerOwner = Owner;
+
+	if (Role < ROLE_Authority)
+	{
+		//called on clients
+		ServerSetTrackerTarget();
+		return;
+	}
+}
+
 //Gets closest actor to tracker
-void ASTracker::SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirection)
+//only be called on server
+void ASTracker::SetTrackerTarget()
 {
 	TSubclassOf<ASPlayerController> PlayerControllersType;
 	PlayerControllersType = ASPlayerController::StaticClass();
@@ -217,7 +229,7 @@ void ASTracker::SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirecti
 	{
 		ASPlayerController* PlayerController = Cast<ASPlayerController>(AllPlayerControllers[i]);
 
-		if (PlayerController->GetTeamName() != Owner->GetTeamName()) 
+		if (PlayerController->GetTeamName() != TrackerOwner->GetTeamName())
 		{
 			EnemyPlayers.Add(PlayerController->GetPawn());
 		}
@@ -231,13 +243,34 @@ void ASTracker::SetTrackerTarget(ASPlayerController* Owner, FVector ThrowDirecti
 
 		if (Distance <= CurrentMaxDist) 
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Player distance found"));
 			TargetingActor = EnemyPlayers[i];
 			CurrentMaxDist = Distance;
 		}
 	}
+
+	NextPathPoint = GetNextPathPoint();
 }
 
 void ASTracker::Throw(FVector AimDirection)
 {
 	ProjectileMovementComponent->Velocity = AimDirection * ProjectileMovementComponent->InitialSpeed;
+}
+
+void ASTracker::ServerSetTrackerTarget_Implementation()
+{
+	SetTrackerTarget();
+}
+
+bool ASTracker::ServerSetTrackerTarget_Validate()
+{
+	//used to prevent cheating in theory
+	return true;
+}
+
+void ASTracker::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASTracker, TrackerOwner, COND_None);
 }
