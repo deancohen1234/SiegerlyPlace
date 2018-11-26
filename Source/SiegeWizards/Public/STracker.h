@@ -100,7 +100,8 @@ public:
 	//when player throws tracker into battlefield
 	void SetTrackerTarget();
 	
-	void SetTrackerOwner(ASPlayerController* Owner);
+	UFUNCTION()
+	void SetTrackerOwner(ASPlayerController* OwningController);
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetTrackerTarget();

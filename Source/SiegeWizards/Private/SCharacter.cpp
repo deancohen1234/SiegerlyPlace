@@ -184,6 +184,13 @@ void ASCharacter::SwapWeapon()
 
 void ASCharacter::ThrowSpecial()
 {
+
+	//if not server
+	if (Role < ROLE_Authority)
+	{
+		ServerThrowSpecial();
+		return;
+	}
 	//if player is out of mana
 	if (GetMana() <= 0)
 	{
@@ -356,6 +363,16 @@ void ASCharacter::ServerSwapWeapon_Implementation()
 }
 
 bool ASCharacter::ServerSwapWeapon_Validate() 
+{
+	return true;
+}
+
+void ASCharacter::ServerThrowSpecial_Implementation()
+{
+	ThrowSpecial();
+}
+
+bool ASCharacter::ServerThrowSpecial_Validate()
 {
 	return true;
 }

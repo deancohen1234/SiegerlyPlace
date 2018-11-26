@@ -14,6 +14,7 @@
 #include "SPlayerController.h"
 #include "SCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "SGameState.h"
 
 
 // Sets default values
@@ -102,7 +103,7 @@ FVector ASTracker::GetNextPathPoint()
 {
 	//ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	if (!ensure(TargetingActor)) return FVector::ZeroVector;
+	if (!TargetingActor) return FVector::ZeroVector;
 
 	UNavigationPath* NavPath = UNavigationSystem::FindPathToActorSynchronously(this, GetActorLocation(), TargetingActor);
 
@@ -134,8 +135,6 @@ void ASTracker::HandleTakeDamage(USHealthComponent* HealthComp, float Health, fl
 
 
 	FString Name = HealthComp->GetOwner()->GetName();
-
-	UE_LOG(LogTemp, Warning, TEXT("Tracker has %f of %s"), Health, *Name);
 
 	if (Health <= 0) 
 	{
@@ -203,31 +202,30 @@ void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
 void ASTracker::SetTrackerOwner(ASPlayerController * Owner)
 {
 	TrackerOwner = Owner;
-
-	if (Role < ROLE_Authority)
+	
+	if (TrackerOwner->Role < ROLE_Authority)
 	{
 		//called on clients
-		ServerSetTrackerTarget();
-		return;
+		//ServerSetTrackerTarget();
+		//return;
 	}
+
+	SetTrackerTarget();
 }
 
 //Gets closest actor to tracker
 //only be called on server
 void ASTracker::SetTrackerTarget()
 {
-	TSubclassOf<ASPlayerController> PlayerControllersType;
-	PlayerControllersType = ASPlayerController::StaticClass();
-	TArray<AActor*> AllPlayerControllers;
-
 	//list of all enemy players
 	TArray<AActor*> EnemyPlayers;
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PlayerControllersType, AllPlayerControllers);
+	ASGameState* GameState = Cast<ASGameState>(GetWorld()->GetGameState());
 
-	for (int i = 0; i < AllPlayerControllers.Num(); i++) 
+	UE_LOG(LogTemp, Warning, TEXT("Game State Player Size: %d"), GameState->AllPlayers.Num());
+	for (int i = 0; i < GameState->AllPlayers.Num(); i++)
 	{
-		ASPlayerController* PlayerController = Cast<ASPlayerController>(AllPlayerControllers[i]);
+		ASPlayerController* PlayerController = Cast<ASPlayerController>(GameState->AllPlayers[i]);
 
 		if (PlayerController->GetTeamName() != TrackerOwner->GetTeamName())
 		{
@@ -237,13 +235,12 @@ void ASTracker::SetTrackerTarget()
 
 	//get enemy who is closest to tracker ball
 	float CurrentMaxDist = 100000000.0f;
-	for (int i = 0; i < EnemyPlayers.Num(); i++) 
+	for (int i = 0; i < EnemyPlayers.Num(); i++)
 	{
 		float Distance = FVector::Dist(EnemyPlayers[i]->GetActorLocation(), GetActorLocation());
 
-		if (Distance <= CurrentMaxDist) 
+		if (Distance <= CurrentMaxDist)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player distance found"));
 			TargetingActor = EnemyPlayers[i];
 			CurrentMaxDist = Distance;
 		}
@@ -260,6 +257,8 @@ void ASTracker::Throw(FVector AimDirection)
 void ASTracker::ServerSetTrackerTarget_Implementation()
 {
 	SetTrackerTarget();
+	//UE_LOG(LogTemp, Warning, TEXT("Role is not authority"));
+
 }
 
 bool ASTracker::ServerSetTrackerTarget_Validate()

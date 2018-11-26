@@ -115,6 +115,9 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSwapWeapon();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerThrowSpecial();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
