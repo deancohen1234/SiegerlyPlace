@@ -59,6 +59,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	float MaxMana = 100;
 
+	UPROPERTY(Replicated)
 	float CurrentMana; 
 
 	UPROPERTY(Replicated)
@@ -117,6 +118,9 @@ protected:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerThrowSpecial();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReload();
 
 public:	
 	// Called every frame

@@ -191,11 +191,16 @@ void ASCharacter::ThrowSpecial()
 		ServerThrowSpecial();
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("User is authority"));
 	//if player is out of mana
 	if (GetMana() <= 0)
 	{
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("User has mana"));
+
 
 	UseMana(100);
 
@@ -299,6 +304,11 @@ void ASCharacter::StopFire()
 
 void ASCharacter::ReloadWeapon() 
 {
+	if (Role < ROLE_Authority) 
+	{
+		ServerReload();
+	}
+
 	CurrentMana = MaxMana;
 }
 
@@ -377,11 +387,23 @@ bool ASCharacter::ServerThrowSpecial_Validate()
 	return true;
 }
 
+void ASCharacter::ServerReload_Implementation()
+{
+	ReloadWeapon();
+}
+
+bool ASCharacter::ServerReload_Validate()
+{
+	return true;
+}
+
+
 void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
+	DOREPLIFETIME(ASCharacter, CurrentMana);
 	//bDied needed to be replicated for the death animation
 	DOREPLIFETIME(ASCharacter, bDied);
 	DOREPLIFETIME(ASCharacter, bIsAttackingTeam);
