@@ -51,8 +51,6 @@ FString ASGameMode::InitNewPlayer(class APlayerController* NewPlayerController, 
 
 void ASGameMode::InitSeamlessTravelPlayer(AController * NewController)
 {
-	UKismetSystemLibrary::PrintString(GetWorld(), "Seamless Travel Call", true, true, FLinearColor((0.0), (0.66000000000000031), 1.0f), 15.0f);
-
 	ASPlayerController* PlayerController = Cast<ASPlayerController>(NewController);
 
 	if (!PlayerController) return;
@@ -67,13 +65,38 @@ void ASGameMode::InitSeamlessTravelPlayer(AController * NewController)
 			PlayerController->SetTeamName("Defenders");
 		}
 		else
-		{
+		{ 
 			PlayerController->SetTeamName("Attackers");
 		}
 
+		/*
 		ASGameState* GameState = GetGameState<ASGameState>();
 		GameState->AllPlayers.Add(PlayerController);
+		*/
 	}
+}
+
+void ASGameMode::PostSeamlessTravel()
+{
+	TArray<AActor*> OutActorArray;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASPlayerController::StaticClass(), OutActorArray);
+
+	ASGameState* GameState = GetGameState<ASGameState>();
+
+	for (int i = 0; i < OutActorArray.Num(); i++) 
+	{
+		ASPlayerController* PlayerController = Cast<ASPlayerController>(OutActorArray[i]);
+
+		if (PlayerController) 
+		{
+			GameState->AllPlayers.Add(PlayerController);
+		}
+	}
+
+	FString NumPlayersString = "Num Players: ";
+	NumPlayersString.Append(FString::FromInt(GameState->AllPlayers.Num()));
+
+	UKismetSystemLibrary::PrintString(GetWorld(), NumPlayersString, true, true, FLinearColor((0.0), (0.66000000000000031), 1.0f), 15.0f);
 }
 
 //returns value from TeamSpots and removes value so there are no duplicates
