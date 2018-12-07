@@ -47,11 +47,13 @@ ASTracker::ASTracker()
 	MovementForce = 1000.0f;
 
 	RequiredDistanceToTarget = 100.0f;
+	DistanceForSoundPlay = 150.0f;
 
 	BaseDamage = 100;
 	DamageRadius = 200;
 
 	SelfDamageInterval = 0.2f;
+	SelfDestructDelayTime = 0.2f;
 }
 
 // Called when the game starts or when spawned
@@ -85,6 +87,10 @@ void ASTracker::Tick(float DeltaTime)
 
 		else
 		{
+			if (DistanceToTarget <= DistanceForSoundPlay && ChasingSound->CurrentPlayCount == 0) 
+			{
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), ChasingSound, GetActorLocation());
+			}
 			//keeping moving towards next target
 			FVector DirectionToPoint = NextPathPoint - GetActorLocation();
 			DirectionToPoint.Normalize();
@@ -149,9 +155,13 @@ void ASTracker::DamageSelf()
 
 void ASTracker::SelfDestruct()
 {
-
 	if (bExploded) return;
 
+	GetWorldTimerManager().SetTimer(TimerHandle_DelaySelfDestruct, this, &ASTracker::DelayedSelfDestruct, SelfDestructDelayTime, false);
+}
+
+void ASTracker::DelayedSelfDestruct() 
+{
 	bExploded = true;
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
@@ -162,7 +172,9 @@ void ASTracker::SelfDestruct()
 	MeshComponent->SetSimulatePhysics(false);
 	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	if (Role == ROLE_Authority) 
+	UE_LOG(LogTemp, Warning, TEXT("Delayed Self Destruct"));
+
+	if (Role == ROLE_Authority)
 	{
 		TArray<AActor*> IgnoredActors;
 		IgnoredActors.Add(this);
@@ -174,7 +186,6 @@ void ASTracker::SelfDestruct()
 		//delete actor, give 2 seconds for client to spawn explosion
 		SetLifeSpan(2.0f);
 	}
-	
 }
 
 void ASTracker::NotifyActorBeginOverlap(AActor * OtherActor)
@@ -251,6 +262,7 @@ void ASTracker::SetTrackerTarget()
 
 void ASTracker::Throw(FVector AimDirection)
 {
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, GetActorLocation());
 	ProjectileMovementComponent->Velocity = AimDirection * ProjectileMovementComponent->InitialSpeed;
 }
 

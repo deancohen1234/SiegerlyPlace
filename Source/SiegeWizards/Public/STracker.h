@@ -48,6 +48,9 @@ protected:
 	float RequiredDistanceToTarget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float DistanceForSoundPlay;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float MovementForce;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
@@ -63,7 +66,16 @@ protected:
 	float SelfDamageInterval;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
+	float SelfDestructDelayTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Self-Destruct")
 	UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundCue* ThrowSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundCue* ChasingSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 	USoundCue* SelfDestructSound;
@@ -79,6 +91,7 @@ protected:
 	UMaterialInstanceDynamic* MatInst;
 
 	FTimerHandle TimerHandle_SelfDamage;
+	FTimerHandle TimerHandle_DelaySelfDestruct;
 
 	void DamageSelf();
 
@@ -89,6 +102,8 @@ protected:
 	void HandleTakeDamage(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	void SelfDestruct();
+
+	void DelayedSelfDestruct();
 
 
 public:	
